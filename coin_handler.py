@@ -242,12 +242,4 @@ async def process_coin(coin, price_change_percent, previous_change, highest_perc
             previous_change, price_change_percent, url, minute_analysis
         )
 
-def run_get_coins():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(get_coins())
-
-if __name__ == '__main__':
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        for _ in range(5):
-            executor.submit(run_get_coins)
+asyncio.run(get_coins())
