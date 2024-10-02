@@ -34,8 +34,7 @@ async def display_signal_settings(tg_id):
                 KeyboardButton(text=ts("Мінімальний відсоток при падінні", await get_lang(tg_id)))
             ],
             [
-                KeyboardButton(text=ts("Часові проміжки сигналів", await get_lang(tg_id))),
-                KeyboardButton(text=ts("Крок між сигналами", await get_lang(tg_id)))
+                KeyboardButton(text=ts("Часові проміжки сигналів", await get_lang(tg_id)))
             ],
         ],
         resize_keyboard=True
@@ -64,7 +63,7 @@ async def display_threshold_increas_settings(increas_percent, tg_id):
         builder.row(KeyboardButton(text=ts("Скасувати", await get_lang(tg_id))))
 
         row_buttons = []
-        for number in range(20, 101, 5):
+        for number in [5, 10, 20]:
             action = ts("Встановлено", await get_lang(tg_id)) if number == increas_percent else ts("Встановити", await get_lang(tg_id))
             button_text = f"{action} {number}"
             row_buttons.append(KeyboardButton(text=button_text))
@@ -90,33 +89,8 @@ async def display_threshold_degreas_settings(degreas_percent, tg_id):
         builder.row(KeyboardButton(text=ts("Скасувати", await get_lang(tg_id))))
 
         row_buttons = []
-        for number in range(-20, -101, -5):
+        for number in [-5, -10, -20]:
             action = ts("Встановлено", await get_lang(tg_id)) if number == degreas_percent else ts("Встановити", await get_lang(tg_id))
-            button_text = f"{action} {number}"
-            row_buttons.append(KeyboardButton(text=button_text))
-            
-            if len(row_buttons) == 2:
-                builder.row(*row_buttons)
-                row_buttons = []
-        
-        if row_buttons:
-            builder.row(*row_buttons)
-
-        return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
-    
-    except Exception as err:
-        print(err)
-        return builder.as_markup()
-    
-async def display_step_settings(step, tg_id):
-    try:
-        builder = ReplyKeyboardBuilder()
-        
-        builder.row(KeyboardButton(text=ts("Скасувати", await get_lang(tg_id))))
-
-        row_buttons = []
-        for number in range(1, 21, 1):
-            action = ts("Встановлено", await get_lang(tg_id)) if number == step else ts("Встановити", await get_lang(tg_id))
             button_text = f"{action} {number}"
             row_buttons.append(KeyboardButton(text=button_text))
             
