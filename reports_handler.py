@@ -10,15 +10,19 @@ from os import getenv, remove
 
 load_dotenv()
 
+from fpdf import FPDF
+
 def create_report(text, tg_id):
     try:
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Helvetica", size=12)
-        
+
+        pdf.add_font('DejaVuSans', '', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', uni=True)
+        pdf.set_font('DejaVuSans', size=12)
+
         lines = text.split('\n')
         for line in lines:
-            pdf.cell(0, 10, txt=line, ln=True, align='C')
+            pdf.cell(0, 10, text=line, ln=True, align='C')
 
         pdf_file_path = f"Report_{tg_id}.pdf"
         pdf.output(pdf_file_path)
@@ -27,7 +31,6 @@ def create_report(text, tg_id):
         print(f"Error creating PDF: {err}")
         return False
 
-    
 async def send_email(subject, body, to_email, from_email, smtp_server, smtp_port, login, password, pdf_file):
     msg = MIMEMultipart()
     msg['From'] = from_email
