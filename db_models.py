@@ -16,7 +16,6 @@ class Users(Base):
     tg_id = Column(BigInteger, unique=True, nullable=False)
     degreas_percent = Column(Integer)
     increas_percent = Column(Integer)
-    signal_step = Column(Integer)
     signal_interval = Column(JSON)
     signals_history = Column(Text)
     email = Column(String(255))
