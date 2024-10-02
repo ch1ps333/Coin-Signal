@@ -37,7 +37,7 @@ async def cmd_start(message: Message):
     try:
         result = await reg_user(message.from_user.id, message.from_user.first_name)
         if result:
-            await message.answer(ts("Ви успішно зареєструвались, бот надає інформацію по монетам, які показують різький зріст або падіння в ціні. По замовчуванню сигнали приходить при зрості і падінні монети на 20% та -20%, ви можете налаштувати поріг сигналів.", await get_lang(message.from_user.id)), reply_markup=await display_general_menu(message.from_user.id))
+            await message.answer(ts("Ви успішно зареєструвались, бот надає інформацію по монетам, які показують різький зріст або падіння в ціні. По замовчуванню сигнали приходить при зрості і падінні монети на 5% та -5%, ви можете налаштувати поріг сигналів.", await get_lang(message.from_user.id)), reply_markup=await display_general_menu(message.from_user.id))
         else:
             await message.answer(ts("Ви вже зареєстровані.", await get_lang(message.from_user.id)), reply_markup=await display_general_menu(message.from_user.id))
     except Exception as err:
@@ -80,9 +80,9 @@ async def send_notification(ukr_text, en_text, prev_percent_change, now_percent_
         users = await get_all_users()
         if users != []:
             for user in users:
-                if minute_analysis in user.signal_interval and user and abs(prev_percent_change - now_percent_change) >= user.signal_step and ((now_percent_change < 0 and now_percent_change <= user.degreas_percent) or (now_percent_change > 0 and now_percent_change >= user.increas_percent)):
+                if minute_analysis in user.signal_interval and user and ((now_percent_change < 0 and now_percent_change <= user.degreas_percent and abs(prev_percent_change - now_percent_change) >= user.degreas_percent) or (now_percent_change > 0 and now_percent_change >= user.increas_percent and abs(prev_percent_change - now_percent_change) >= user.increas_percent)):
                     try:
-                        if now_percent_change > 200 and abs(prev_percent_change - now_percent_change) * 5 >= user.signal_step:
+                        if now_percent_change > 200 and abs(prev_percent_change - now_percent_change) < 50:
                             return False
                         keyboard = await display_coin_spot(link, user.tg_id)
                         if user.lang == 'ukr':

@@ -22,9 +22,8 @@ async def reg_user(tg_id, name):
                 user = Users(
                     tg_id=tg_id, 
                     name=name,
-                    degreas_percent=-20,
-                    increas_percent=20,
-                    signal_step=1,
+                    degreas_percent=-5,
+                    increas_percent=5,
                     signal_interval=[1440],
                     signals_history="",
                     email="",
@@ -98,21 +97,6 @@ async def set_increas_percent(percent, tg_id):
         except SQLAlchemyError as err:
             print(err)
             return False
-
-async def set_signal_step(percent, tg_id):
-    async with AsyncSessionLocal() as session:
-        try:
-            result = await session.execute(select(Users).filter_by(tg_id=tg_id))
-            user = result.scalar()
-            if user and percent != user.signal_step:
-                user.signal_step = percent
-                await session.commit()
-                return True
-            return False
-        except SQLAlchemyError as err:
-            print(err)
-            return False
-
 
 async def get_all_users():
     async with AsyncSessionLocal() as session:

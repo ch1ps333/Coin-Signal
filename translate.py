@@ -1,7 +1,7 @@
 translations = {
     'en': {
         "Ви вже зареєстровані.": "You are already registered.",
-        "Ви успішно зареєструвалися, бот надає інформацію про монети, які показують різький зріст або падіння в ціні. По замовчуванню сигналів надходити при зрості і падінні монети на 20% та -20%, ви можете налаштувати поріг сигналів.": "You have successfully registered, the bot provides information about coins that show a sharp rise or fall in price. By default, signals are sent when the coin rises and falls by 20% and -20%, you can adjust the signal threshold.",
+        "Ви успішно зареєструвалися, бот надає інформацію про монети, які показують різький зріст або падіння в ціні. По замовчуванню сигналів надходити при зрості і падінні монети на 5% та -5%, ви можете налаштувати поріг сигналів.": "You have successfully registered, the bot provides information about coins that show a sharp rise or fall in price. By default, signals are sent when the coin rises and falls by 5% and -5%, you can adjust the signal threshold.",
         "Мінімальний відсоток при зростанні": "The minimum percentage during growth",
         "Мінімальний відсоток при падінні": "Minimum percentage when falling",
         "Змінити мову": "Change language",

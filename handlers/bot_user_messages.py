@@ -2,8 +2,8 @@ from aiogram import Router, F, Bot
 from aiogram.types import Message, FSInputFile
 from datetime import datetime
 from aiogram.fsm.context import FSMContext
-from datebase.user import get_user_info, set_degreas_percent, set_increas_percent, set_signal_step, get_lang, change_lang, set_signal_interval, delete_signal_interval, bind_mail
-from keyboards.reply import display_threshold_increas_settings, display_threshold_degreas_settings, display_general_menu, display_select_language_menu, display_signal_settings, display_step_settings, display_interval_settings
+from datebase.user import get_user_info, set_degreas_percent, set_increas_percent, get_lang, change_lang, set_signal_interval, delete_signal_interval, bind_mail
+from keyboards.reply import display_threshold_increas_settings, display_threshold_degreas_settings, display_general_menu, display_select_language_menu, display_signal_settings, display_interval_settings
 from utils.settings import Form
 from translate import translate as ts
 import os
@@ -83,16 +83,6 @@ async def signal_settings(message: Message, bot: Bot):
     except Exception as err:
      print(err)
 
-@router.message((F.text.lower() == "крок між сигналами") | ((F.text.lower() == "step between signals")))
-async def signal_step(message: Message, bot: Bot, state: FSMContext):
-    try:
-        userInfo = await get_user_info(message.from_user.id)
-        if userInfo is not None:
-            await message.answer(ts("Ви можете встановити крок між звичайними сигналами.", await get_lang(message.from_user.id)), reply_markup=await display_step_settings(userInfo.signal_step, message.from_user.id))
-            await state.set_state(Form.change_signal_step)
-    except Exception as err:
-     print(err)
-
 @router.message((F.text.lower() == "змінити мову") | (F.text.lower() == "change language"))
 async def change_name(message: Message, state: FSMContext):
     try:
@@ -131,16 +121,17 @@ async def change_threshold_ancreas_(message: Message, state: FSMContext):
             if (len(parts) == 2 and parts[0].strip() == "Встановити") or (len(parts) == 2 and parts[0].strip() == "Install"):
                 percent = parts[1].strip()
                 percent = int(percent)
-                try:
-                    result = await set_increas_percent(percent, message.from_user.id)
+                if percent in [5, 10, 20]:
+                    try:
+                        result = await set_increas_percent(percent, message.from_user.id)
 
-                    if result:
-                        await message.answer(f"{ts('Ви успішно встановили поріг', await get_lang(message.from_user.id))} {percent}%.", reply_markup=await display_general_menu(message.from_user.id))
-                        await state.clear()
-                    else:
-                        await message.answer(f"{ts('Ви вже використовуєте поріг', await get_lang(message.from_user.id))} {percent}%.")  
-                except ValueError:
-                    await message.answer(ts("Введіть корректне число.", await get_lang(message.from_user.id)))
+                        if result:
+                            await message.answer(f"{ts('Ви успішно встановили поріг', await get_lang(message.from_user.id))} {percent}%.", reply_markup=await display_general_menu(message.from_user.id))
+                            await state.clear()
+                        else:
+                            await message.answer(f"{ts('Ви вже використовуєте поріг', await get_lang(message.from_user.id))} {percent}%.")  
+                    except ValueError:
+                        await message.answer(ts("Введіть корректне число.", await get_lang(message.from_user.id)))
     except Exception as err:
         print(err)
 
@@ -156,41 +147,17 @@ async def change_threshold_degreas_(message: Message, state: FSMContext):
             if (len(parts) == 2 and parts[0].strip() == "Встановити") or (len(parts) == 2 and parts[0].strip() == "Install"):
                 percent = parts[1].strip()
                 percent = int(percent)
-                try:
-                    result = await set_degreas_percent(percent, message.from_user.id)
+                if percent in [-5, -10, -20]:
+                    try:
+                        result = await set_degreas_percent(percent, message.from_user.id)
 
-                    if result:
-                        await message.answer(f"{ts('Ви успішно встановили поріг', await get_lang(message.from_user.id))} {percent}%.", reply_markup=await display_general_menu(message.from_user.id))
-                        await state.clear()
-                    else:
-                        await message.answer(f"{ts('Ви вже використовуєте поріг', await get_lang(message.from_user.id))} {percent}%.")  
-                except ValueError:
-                    await message.answer(ts("Введіть корректне число.", await get_lang(message.from_user.id)))
-    except Exception as err:
-        print(err)
-
-@router.message(Form.change_signal_step)
-async def change_signal_step_(message: Message, state: FSMContext):
-    try:
-        if message.text.lower() == "скасувати" or message.text.lower() == "cancel":
-            await state.clear()
-            await message.answer(ts("Налаштування сигналів успішно відкрито.", await get_lang(message.from_user.id)), reply_markup=await display_signal_settings(message.from_user.id))
-        else:
-            text = message.text
-            parts = text.split(" ")
-            if (len(parts) == 2 and parts[0].strip() == "Встановити") or (len(parts) == 2 and parts[0].strip() == "Install"):
-                percent = parts[1].strip()
-                percent = int(percent)
-                try:
-                    result = await set_signal_step(percent, message.from_user.id)
-
-                    if result:
-                        await message.answer(f"{ts('Ви успішно встановили крок', await get_lang(message.from_user.id))} {percent}%.", reply_markup=await display_general_menu(message.from_user.id))
-                        await state.clear()
-                    else:
-                        await message.answer(f"{ts('Ви вже використовуєте крок', await get_lang(message.from_user.id))} {percent}%.")  
-                except ValueError:
-                    await message.answer(ts("Введіть корректне число.", await get_lang(message.from_user.id)))
+                        if result:
+                            await message.answer(f"{ts('Ви успішно встановили поріг', await get_lang(message.from_user.id))} {percent}%.", reply_markup=await display_general_menu(message.from_user.id))
+                            await state.clear()
+                        else:
+                            await message.answer(f"{ts('Ви вже використовуєте поріг', await get_lang(message.from_user.id))} {percent}%.")  
+                    except ValueError:
+                        await message.answer(ts("Введіть корректне число.", await get_lang(message.from_user.id)))
     except Exception as err:
         print(err)
 
@@ -225,7 +192,7 @@ async def change_signal_interval_(message: Message, state: FSMContext):
                         result = await delete_signal_interval(interval, message.from_user.id)
 
                         if result:
-                            await message.answer(f"{ts('Ви успішно видалили інтервал', await get_lang(message.from_user.id))} {interval}%.", reply_markup=await display_general_menu(message.from_user.id))
+                            await message.answer(f"{ts('Ви успішно видалили інтервал', await get_lang(message.from_user.id))} {interval}.", reply_markup=await display_general_menu(message.from_user.id))
                             await state.clear()
                         else:
                             await message.answer(ts('Інтервал не використовується', await get_lang(message.from_user.id)))  
