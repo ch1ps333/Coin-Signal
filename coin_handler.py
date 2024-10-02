@@ -18,7 +18,6 @@ notified_coins_1440m = {}
 
 async def get_coins():
     while True:
-        print('s')
         tickers = client.get_ticker()
         usdt_coins = [ticker for ticker in tickers if ticker['symbol'].endswith('USDT')]
         usdt_coins.sort(key=lambda x: float(x['priceChangePercent']), reverse=True)
