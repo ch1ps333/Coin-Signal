@@ -1,7 +1,9 @@
-from sqlalchemy import create_engine, Column, Integer, String, BigInteger, JSON, Text
+from sqlalchemy import create_engine, Column, Integer, String, BigInteger, JSON
+from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import declarative_base, sessionmaker
 from os import getenv
 from dotenv import load_dotenv
+
 load_dotenv()
 
 DATABASE_URL = f"mysql+pymysql://{getenv('DB_USER')}:{getenv('DB_PASSWORD')}@{getenv('DB_HOST')}/{getenv('DB_SCHEME')}"
@@ -17,6 +19,6 @@ class Users(Base):
     degreas_percent = Column(Integer)
     increas_percent = Column(Integer)
     signal_interval = Column(JSON)
-    signals_history = Column(Text)
+    signals_history = Column(LONGTEXT)
     email = Column(String(255))
     lang = Column(String(10))
