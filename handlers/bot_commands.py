@@ -49,14 +49,18 @@ def keyboard_to_dict(keyboard: InlineKeyboardMarkup) -> dict:
     for row in keyboard.inline_keyboard:
         row_data = []
         for button in row:
-            button_data = {
-                "text": button.text,
-                "url": button.url,
-                "callback_data": 'callback'
-            }
+            button_data = {"text": button.text}
+            
+            if button.url:
+                button_data["url"] = button.url
+            
+            if button.callback_data:
+                button_data["callback_data"] = button.callback_data
+            
             row_data.append(button_data)
         result.append(row_data)
     return {"inline_keyboard": result}
+
 
 async def send_message(user: int, text: str, session: Optional[ClientSession] = None, keyboard: Optional[InlineKeyboardMarkup] = None):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -73,24 +77,30 @@ async def send_message(user: int, text: str, session: Optional[ClientSession] = 
             response_text = await response.text()
             print(f"Response text: {response_text}")
 
-async def send_notification(ukr_text, en_text, prev_percent_change, now_percent_change, link, minute_analysis):
+async def send_notification(ukr_text, en_text, prev_percent_change, now_percent_change, link, minute_analysis, name_coin):
     prev_percent_change = float(prev_percent_change)
     now_percent_change = float(now_percent_change)
     async with aiohttp.ClientSession() as session:
         users = await get_all_users()
         if users != []:
             for user in users:
-                if minute_analysis in user.signal_interval and user and ((now_percent_change < 0 and now_percent_change <= user.degreas_percent and abs(prev_percent_change - now_percent_change) >= user.degreas_percent) or (now_percent_change > 0 and now_percent_change >= user.increas_percent and abs(prev_percent_change - now_percent_change) >= user.increas_percent)):
+                if minute_analysis in user.signal_interval and user and ((now_percent_change < 0 and now_percent_change <= user.degreas_percent and abs(prev_percent_change - now_percent_change) >= abs(user.degreas_percent)) or (now_percent_change > 0 and now_percent_change >= user.increas_percent and abs(prev_percent_change - now_percent_change) >= user.increas_percent)):
                     try:
                         if now_percent_change > 200 and abs(prev_percent_change - now_percent_change) < 50:
                             return False
-                        keyboard = await display_coin_spot(link, user.tg_id)
+                        keyboard = await display_coin_spot(link, user.tg_id, name_coin)
                         if user.lang == 'ukr':
                             await send_message(user.tg_id, ukr_text, session, keyboard)
-                            await add_signal_history(ukr_text, user.tg_id)
+                            try:
+                                await add_signal_history(ukr_text, user.tg_id)
+                            except Exception as err:
+                                print(err)
                         else:
                             await send_message(user.tg_id, en_text, session, keyboard)
-                            await add_signal_history(en_text, user.tg_id)
+                            try:
+                                await add_signal_history(en_text, user.tg_id)
+                            except Exception as err:
+                                print(err)
                         await sleep(0.5)
                     except Exception as err:
                         print(f"{user.tg_id}: {err}")

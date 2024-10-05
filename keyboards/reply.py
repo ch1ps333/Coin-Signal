@@ -11,7 +11,8 @@ async def display_general_menu(tg_id):
                 KeyboardButton(text=ts("Отримати звіт", await get_lang(tg_id)))
             ],
             [
-                KeyboardButton(text=ts("Налаштування сигналів", await get_lang(tg_id)))
+                KeyboardButton(text=ts("Налаштування сигналів", await get_lang(tg_id))),
+                KeyboardButton(text=ts("Обрані монети", await get_lang(tg_id))),
             ],
             [
                 KeyboardButton(text=ts("Змінити мову", await get_lang(tg_id))),
@@ -22,6 +23,31 @@ async def display_general_menu(tg_id):
     )
 
     return general_keyboard
+
+async def display_favourite_coin(favourite_coins, tg_id):
+    try:
+        builder = ReplyKeyboardBuilder()
+        
+        builder.row(KeyboardButton(text=ts("Головне меню", await get_lang(tg_id))))
+
+        row_buttons = []
+        for coin in favourite_coins:
+            button_text = f"{ts('Монета', await get_lang(tg_id))} {coin}"
+            row_buttons.append(KeyboardButton(text=button_text))
+            
+            if len(row_buttons) == 2:
+                builder.row(*row_buttons)
+                row_buttons = []
+        
+        if row_buttons:
+            builder.row(*row_buttons)
+
+        return builder.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    
+    except Exception as err:
+        print(err)
+        return builder.as_markup()
+
 
 async def display_signal_settings(tg_id):
     general_keyboard = ReplyKeyboardMarkup(
@@ -36,6 +62,21 @@ async def display_signal_settings(tg_id):
             [
                 KeyboardButton(text=ts("Часові проміжки сигналів", await get_lang(tg_id)))
             ],
+        ],
+        resize_keyboard=True
+    )
+
+    return general_keyboard
+
+async def display_coin_menu(tg_id, coin):
+    general_keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text=ts("Головне меню", await get_lang(tg_id)))
+            ],
+            [
+                KeyboardButton(text=f"{ts('Видалити монету', await get_lang(tg_id))} {coin}")
+            ]
         ],
         resize_keyboard=True
     )

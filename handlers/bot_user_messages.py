@@ -2,8 +2,8 @@ from aiogram import Router, F, Bot
 from aiogram.types import Message, FSInputFile
 from datetime import datetime
 from aiogram.fsm.context import FSMContext
-from datebase.user import get_user_info, set_degreas_percent, set_increas_percent, get_lang, change_lang, set_signal_interval, delete_signal_interval, bind_mail
-from keyboards.reply import display_threshold_increas_settings, display_threshold_degreas_settings, display_general_menu, display_select_language_menu, display_signal_settings, display_interval_settings
+from datebase.user import get_user_info, set_degreas_percent, set_increas_percent, get_lang, change_lang, set_signal_interval, delete_signal_interval, bind_mail, remove_fav_coin
+from keyboards.reply import display_threshold_increas_settings, display_threshold_degreas_settings, display_general_menu, display_select_language_menu, display_signal_settings, display_interval_settings, display_favourite_coin, display_coin_menu
 from utils.settings import Form
 from translate import translate as ts
 import os
@@ -14,6 +14,32 @@ EMAIL_REGEX = r"[^@]+@[^@]+\.[^@]+"
 
 router = Router()
 
+@router.message(lambda message: "Монета" in message.text or "Coin" in message.text)
+async def coin_menu(message: Message):
+    try:
+        text = message.text
+        parts = text.split(" ")
+        if (len(parts) == 2 and parts[0].strip() == "Монета") or (len(parts) == 2 and parts[0].strip() == "Coin"):
+            coin = parts[1].strip()
+        await message.answer(ts("Керування монетою успішно відкрито.", await get_lang(message.from_user.id)), reply_markup=await display_coin_menu(message.from_user.id, coin))
+    except Exception as err:
+        print(err)
+
+@router.message(lambda message: "Видалити монету" in message.text or "Delete coin" in message.text)
+async def coin_menu(message: Message, state: FSMContext):
+    try:
+        text = message.text
+        parts = text.split(" ")
+        if (len(parts) == 3 and parts[0].strip() == "Видалити" and parts[1].strip() == "монету") or (len(parts) == 3 and parts[0].strip() == "Delete" and parts[1].strip() == "coin"):
+            coin = parts[2].strip()
+        res = await remove_fav_coin(coin, message.from_user.id)
+        user = await get_user_info(message.from_user.id)
+        if res:
+            await message.answer(ts("Монету успішно видалено з обраних.", await get_lang(message.from_user.id)), reply_markup=await display_favourite_coin(user.favourite_coins, message.from_user.id))
+        else:
+            await message.answer(ts("Монета не знаходиться в обраних.", await get_lang(message.from_user.id)), reply_markup=await display_favourite_coin(user.favourite_coins, message.from_user.id))
+    except Exception as err:
+        print(err)
 
 @router.message((F.text.lower() == "отримати звіт") | ((F.text.lower() == "get report")))
 async def signal_interval_settings(message: Message, bot: Bot, state: FSMContext):
@@ -66,6 +92,15 @@ async def threshold_degreas_settings(message: Message, bot: Bot, state: FSMConte
         if userInfo is not None:
             await message.answer(ts("Ви можете встановити мінімальний відсоток при падінні монети.\nВи отримуватимете інформацію про монети, які впали на цей відсоток, або вище сьогодні.", await get_lang(message.from_user.id)), reply_markup=await display_threshold_degreas_settings(userInfo.degreas_percent, message.from_user.id))
             await state.set_state(Form.change_threshold_degreas)
+    except Exception as err:
+     print(err)
+
+@router.message((F.text.lower() == "обрані монети") | (F.text.lower() == "favourite coins"))
+async def favourite_coins(message: Message, bot: Bot):
+    try:
+        userInfo = await get_user_info(message.from_user.id)
+        if userInfo is not None:
+            await message.answer(ts("Список обраних монет успішно відкрито.", await get_lang(message.from_user.id)), reply_markup=await display_favourite_coin(userInfo.favourite_coins, message.from_user.id))
     except Exception as err:
      print(err)
 

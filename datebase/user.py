@@ -25,6 +25,7 @@ async def reg_user(tg_id, name):
                     degreas_percent=-5,
                     increas_percent=5,
                     signal_interval=[1440],
+                    favourite_coins=[],
                     signals_history="",
                     email="",
                     lang='en'
@@ -155,6 +156,45 @@ async def delete_signal_interval(interval, tg_id):
             print(err)
             return False
         
+async def add_fav_coin(coin, tg_id):
+    async with AsyncSessionLocal() as session:
+        try:
+            result = await session.execute(select(Users).filter_by(tg_id=tg_id))
+            user = result.scalar()
+            if user:
+                current_coins = user.favourite_coins
+                if coin not in current_coins:
+                    current_coins.append(coin)
+                    await session.execute(
+                        update(Users).where(Users.tg_id == tg_id).values(favourite_coins=current_coins)
+                    )
+                    await session.commit()
+                    return True
+            return False
+        except SQLAlchemyError as err:
+            print(err)
+            return False
+
+async def remove_fav_coin(coin, tg_id):
+    async with AsyncSessionLocal() as session:
+        try:
+            result = await session.execute(select(Users).filter_by(tg_id=tg_id))
+            user = result.scalar()
+            if user:
+                current_coins = user.favourite_coins
+                if coin in current_coins:
+                    current_coins.remove(coin)
+                    await session.execute(
+                        update(Users).where(Users.tg_id == tg_id).values(favourite_coins=current_coins)
+                    )
+                    await session.commit()
+                    return True
+            return False
+        except SQLAlchemyError as err:
+            print(err)
+            return False
+
+
         
 async def add_signal_history(text, tg_id):
     async with AsyncSessionLocal() as session:

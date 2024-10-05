@@ -43,7 +43,16 @@ translations = {
         "Введіть пошту.": "Enter mail",
         "Пошту успішно прив`язно.": "Mail has been linked successfully.",
         "Неправильний формат пошти. Спробуйте ще раз.": "Incorrect mail format. Try again.",
-
+        "Додати до обраних": "Add to favorites",
+        "Монету успішно додано до обраних.": "The coin has been successfully added to favorites.",
+        "Монета вже знаходиться в обраних.": "The coin is already in the favorites.",
+        "Обрані монети": "Favourite coins",
+        "Список обраних монет успішно відкрито.": "The list of selected coins has been successfully opened.",
+        "Монета": "Coin",
+        "Керування монетою успішно відкрито.": "Coin management successfully opened.",
+        "Видалити монету": "Delete coin",
+        "Монета не знаходиться в обраних.": "The coin is not in favorites.",
+        "Монету успішно видалено з обраних.": "The coin has been successfully removed from favorites.",
     }
 }
 

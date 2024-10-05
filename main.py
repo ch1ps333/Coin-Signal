@@ -1,7 +1,7 @@
 import asyncio
 import multiprocessing
 from aiogram import Bot, Dispatcher
-from handlers import bot_commands, bot_user_messages
+from handlers import bot_commands, bot_user_messages, callback
 from middlewares.throttle import AntiFloodMiddleware
 from config import config as cfg
 from db_models import Base, engine
@@ -16,6 +16,7 @@ async def main_bot():
     dp.include_routers(
         bot_user_messages.router,
         bot_commands.router,
+        callback.router,
     )
 
     await bot.delete_webhook(drop_pending_updates=True)
