@@ -29,14 +29,17 @@ async def get_coins():
             symbol = coin['symbol']
 
             if abs(price_change_percent) >= 5:
-                klines_5m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1MINUTE, limit=5)
-                klines_15m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1MINUTE, limit=15)
-                klines_45m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_5MINUTE, limit=9)
-                klines_60m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_5MINUTE, limit=12)
-                klines_135m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_15MINUTE, limit=9)
-                klines_240m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_30MINUTE, limit=8)
-                klines_540m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1HOUR, limit=9)
-                klines_1440m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1HOUR, limit=24)
+                try:
+                    klines_5m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1MINUTE, limit=5)
+                    klines_15m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1MINUTE, limit=15)
+                    klines_45m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_5MINUTE, limit=9)
+                    klines_60m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_5MINUTE, limit=12)
+                    klines_135m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_15MINUTE, limit=9)
+                    klines_240m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_30MINUTE, limit=8)
+                    klines_540m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1HOUR, limit=9)
+                    klines_1440m = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1HOUR, limit=24)
+                except Exception as err:
+                    print(err)
 
 
                 open_price_5m = float(klines_5m[0][1])
