@@ -242,8 +242,6 @@ async def process_coin(coin, price_change_percent, previous_change, highest_perc
             elif price_change_percent < 0:
                 header_ukr = f"- {coin['symbol']}: {price_change_percent}% ПАДІННЯ\n"
                 header_en = f"- {coin['symbol']}: {price_change_percent}% FALL\n"
-        if minute_analysis == 1440:
-            print(f"{previous_change} {header_ukr} ")    
         await send_notification(
             f"* Аналіз за {minute_analysis} хвилин *\n"
             f"{header_ukr}"
