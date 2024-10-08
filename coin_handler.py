@@ -18,7 +18,10 @@ notified_coins_1440m = {}
 
 async def get_coins():
     while True:
-        tickers = client.get_ticker()
+        try:
+            tickers = client.get_ticker()
+        except Exception as err:
+            print(err)
         usdt_coins = [ticker for ticker in tickers if ticker['symbol'].endswith('USDT')]
         usdt_coins.sort(key=lambda x: float(x['priceChangePercent']), reverse=True)
 
@@ -220,7 +223,10 @@ async def process_coin(coin, price_change_percent, previous_change, highest_perc
     current_price = coin['lastPrice']
     symbol_clean = coin['symbol'].replace('USDT', '')
     url = f"https://www.binance.com/en/trade/{symbol_clean}_USDT"
-    res = get(url)
+    try:
+        res = get(url)
+    except Exception as err:
+        print(err)
     if res.ok:
         if price_change_percent > previous_change and previous_change != 0:
             header_ukr = f"- {coin['symbol']}: {price_change_percent}% РІСТ\n"
