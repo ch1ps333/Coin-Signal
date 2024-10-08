@@ -76,7 +76,7 @@ async def get_coins():
                             notified_coins_15m[symbol] = (datetime.now(), percent_change_15m)
                         else:
                             previous_change_time_15m, previous_change_15m = notified_coins_15m[symbol]
-                            if abs(percent_change_15m - previous_change_15m) >= 1:
+                            if abs(percent_change_15m - previous_change_15m) >= 5:
                                 await process_coin(coin, percent_change_15m, previous_change_15m, highest_percent15m, lowest_percent15m, 15)
                                 notified_coins_15m[symbol] = (datetime.now(), percent_change_15m)
 
@@ -94,7 +94,7 @@ async def get_coins():
                             notified_coins_45m[symbol] = (datetime.now(), percent_change_45m)
                         else:
                             previous_change_time_45m, previous_change_45m = notified_coins_45m[symbol]
-                            if abs(percent_change_45m - previous_change_45m) >= 1:
+                            if abs(percent_change_45m - previous_change_45m) >= 5:
                                 await process_coin(coin, percent_change_45m, previous_change_45m, highest_percent45m, lowest_percent45m, 45)
                                 notified_coins_45m[symbol] = (datetime.now(), percent_change_45m)
 
@@ -112,7 +112,7 @@ async def get_coins():
                             notified_coins_60m[symbol] = (datetime.now(), percent_change_60m)
                         else:
                             previous_change_time_60m, previous_change_60m = notified_coins_60m[symbol]
-                            if abs(percent_change_60m - previous_change_60m) >= 1:
+                            if abs(percent_change_60m - previous_change_60m) >= 5:
                                 await process_coin(coin, percent_change_60m, previous_change_60m, highest_percent60m, lowest_percent60m, 60)
                                 notified_coins_60m[symbol] = (datetime.now(), percent_change_60m)
 
@@ -130,7 +130,7 @@ async def get_coins():
                             notified_coins_135m[symbol] = (datetime.now(), percent_change_135m)
                         else:
                             previous_change_time_135m, previous_change_135m = notified_coins_135m[symbol]
-                            if abs(percent_change_135m - previous_change_135m) >= 1:
+                            if abs(percent_change_135m - previous_change_135m) >= 5:
                                 await process_coin(coin, percent_change_135m, previous_change_135m, highest_percent135m, lowest_percent135m, 135)
                                 notified_coins_135m[symbol] = (datetime.now(), percent_change_135m)
 
@@ -148,7 +148,7 @@ async def get_coins():
                             notified_coins_240m[symbol] = (datetime.now(), percent_change_240m)
                         else:
                             previous_change_time_240m, previous_change_240m = notified_coins_240m[symbol]
-                            if abs(percent_change_240m - previous_change_240m) >= 1:
+                            if abs(percent_change_240m - previous_change_240m) >= 5:
                                 await process_coin(coin, percent_change_240m, previous_change_240m, highest_percent240m, lowest_percent240m, 240)
                                 notified_coins_240m[symbol] = (datetime.now(), percent_change_240m)
 
@@ -166,7 +166,7 @@ async def get_coins():
                             notified_coins_540m[symbol] = (datetime.now(), percent_change_540m)
                         else:
                             previous_change_time_540m, previous_change_540m = notified_coins_540m[symbol]
-                            if abs(percent_change_540m - previous_change_540m) >= 1:
+                            if abs(percent_change_540m - previous_change_540m) >= 5:
                                 await process_coin(coin, percent_change_540m, previous_change_540m, highest_percent540m, lowest_percent540m, 540)
                                 notified_coins_540m[symbol] = (datetime.now(), percent_change_540m)
 
@@ -184,7 +184,7 @@ async def get_coins():
                             notified_coins_1440m[symbol] = (datetime.now(), percent_change_1440m)
                         else:
                             previous_change_time_1440m, previous_change_1440m = notified_coins_1440m[symbol]
-                            if abs(percent_change_1440m - previous_change_1440m) >= 1:
+                            if abs(percent_change_1440m - previous_change_1440m) >= 5:
                                 await process_coin(coin, percent_change_1440m, previous_change_1440m, highest_percent1440m, lowest_percent1440m, 1440)
                                 notified_coins_1440m[symbol] = (datetime.now(), percent_change_1440m)
                   
@@ -242,6 +242,8 @@ async def process_coin(coin, price_change_percent, previous_change, highest_perc
             elif price_change_percent < 0:
                 header_ukr = f"- {coin['symbol']}: {price_change_percent}% ПАДІННЯ\n"
                 header_en = f"- {coin['symbol']}: {price_change_percent}% FALL\n"
+        if minute_analysis == 1440:
+            print(f"{previous_change} {header_ukr} ")    
         await send_notification(
             f"* Аналіз за {minute_analysis} хвилин *\n"
             f"{header_ukr}"
