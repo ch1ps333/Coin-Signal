@@ -69,7 +69,7 @@ async def get_coins():
                             if abs(percent_change_1440m - previous_change_1440m) >= 5:
                                 await process_coin(coin, percent_change_1440m, previous_change_1440m, highest_percent1440m, lowest_percent1440m, 1440)
                                 notified_coins_1440m[symbol] = (datetime.now(), percent_change_1440m)
-                  
+        await asyncio.sleep(60)
 
 
 def remove_old_coins():
@@ -109,8 +109,7 @@ async def process_coin(coin, price_change_percent, previous_change, highest_perc
                 header_en = f"- {coin['symbol']}: {price_change_percent}% GROWTH\n"
             elif price_change_percent < 0:
                 header_ukr = f"- {coin['symbol']}: {price_change_percent}% ПАДІННЯ\n"
-                header_en = f"- {coin['symbol']}: {price_change_percent}% FALL\n"
-        print(f"{minute_analysis} {header_ukr} ")    
+                header_en = f"- {coin['symbol']}: {price_change_percent}% FALL\n"   
         await send_notification(
             f"* Аналіз за {minute_analysis} хвилин *\n"
             f"{header_ukr}"
