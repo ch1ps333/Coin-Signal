@@ -9,9 +9,13 @@ client = Client()
 
 notified_coins_60m = {}
 notified_coins_1440m = {}
+counter = 0
 
 async def get_coins():
     while True:
+        global counter
+        counter += 1
+        print(counter)
         try:
             tickers = client.get_ticker()
         except Exception as err:
@@ -19,7 +23,8 @@ async def get_coins():
         usdt_coins = [ticker for ticker in tickers if ticker['symbol'].endswith('USDT')]
         usdt_coins.sort(key=lambda x: float(x['priceChangePercent']), reverse=True)
 
-        remove_old_coins()
+        if counter > 500:
+            remove_old_coins()
 
         for coin in usdt_coins:
             price_change_percent = float(coin['priceChangePercent'])
