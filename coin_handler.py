@@ -4,27 +4,24 @@ from handlers.bot_commands import send_notification
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from requests import get
+import redis
+
+# Подключение к Redis
+redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
 client = Client()
-
-notified_coins_60m = {}
-notified_coins_1440m = {}
 counter = 0
 
 async def get_coins():
+    global counter
     while True:
-        global counter
         counter += 1
-        print(counter)
         try:
             tickers = client.get_ticker()
         except Exception as err:
             print(err)
         usdt_coins = [ticker for ticker in tickers if ticker['symbol'].endswith('USDT')]
         usdt_coins.sort(key=lambda x: float(x['priceChangePercent']), reverse=True)
-
-        if counter > 500:
-            remove_old_coins()
 
         for coin in usdt_coins:
             price_change_percent = float(coin['priceChangePercent'])
@@ -37,7 +34,6 @@ async def get_coins():
                 except Exception as err:
                     print(err)
 
-
                 if klines_60m:
                     open_price_60m = float(klines_60m[0][1])
                     close_price_60m = float(klines_60m[-1][4])
@@ -47,15 +43,13 @@ async def get_coins():
                         low_price_60m = min([float(kline[3]) for kline in klines_60m])  
                         highest_percent60m = (high_price_60m - open_price_60m) / open_price_60m * 100
                         lowest_percent60m = (low_price_60m - open_price_60m) / open_price_60m * 100
-                        if symbol not in notified_coins_60m:
-                            await process_coin(coin, percent_change_60m, 0, highest_percent60m, lowest_percent60m, 60)
-                            notified_coins_60m[symbol] = (datetime.now(), percent_change_60m)
-                        else:
-                            previous_change_time_60m, previous_change_60m = notified_coins_60m[symbol]
-                            if abs(percent_change_60m - previous_change_60m) >= 5:
-                                await process_coin(coin, percent_change_60m, previous_change_60m, highest_percent60m, lowest_percent60m, 60)
-                                notified_coins_60m[symbol] = (datetime.now(), percent_change_60m)
 
+                        notified_key_60m = f"notified_60m_{symbol}"
+                        previous_change_60m = redis_client.get(notified_key_60m)
+
+                        if previous_change_60m is None or abs(percent_change_60m - float(previous_change_60m)) >= 5:
+                            await process_coin(coin, percent_change_60m, float(previous_change_60m) if previous_change_60m else 0, highest_percent60m, lowest_percent60m, 60)
+                            redis_client.setex(notified_key_60m, timedelta(days=2), percent_change_60m)
 
                 if klines_1440m:
                     open_price_1440m = float(klines_1440m[0][1])
@@ -66,30 +60,15 @@ async def get_coins():
                         low_price_1440m = min([float(kline[3]) for kline in klines_1440m])  
                         highest_percent1440m = (high_price_1440m - open_price_1440m) / open_price_1440m * 100
                         lowest_percent1440m = (low_price_1440m - open_price_1440m) / open_price_1440m * 100
-                        if symbol not in notified_coins_1440m:
-                            await process_coin(coin, percent_change_1440m, 0, highest_percent1440m, lowest_percent1440m, 1440)
-                            notified_coins_1440m[symbol] = (datetime.now(), percent_change_1440m)
-                        else:
-                            previous_change_time_1440m, previous_change_1440m = notified_coins_1440m[symbol]
-                            if abs(percent_change_1440m - previous_change_1440m) >= 5:
-                                await process_coin(coin, percent_change_1440m, previous_change_1440m, highest_percent1440m, lowest_percent1440m, 1440)
-                                notified_coins_1440m[symbol] = (datetime.now(), percent_change_1440m)
+
+                        notified_key_1440m = f"notified_1440m_{symbol}"
+                        previous_change_1440m = redis_client.get(notified_key_1440m)
+
+                        if previous_change_1440m is None or abs(percent_change_1440m - float(previous_change_1440m)) >= 5:
+                            await process_coin(coin, percent_change_1440m, float(previous_change_1440m) if previous_change_1440m else 0, highest_percent1440m, lowest_percent1440m, 1440)
+                            redis_client.setex(notified_key_1440m, timedelta(days=2), percent_change_1440m)
+
         await asyncio.sleep(60)
-
-
-def remove_old_coins():
-    now = datetime.now()
-    two_days_ago = now - timedelta(days=2)
-    
-    all_notified_coins = {**notified_coins_60m, **notified_coins_1440m}
-
-    keys_to_remove = [symbol for symbol, (timestamp, _) in all_notified_coins.items() if timestamp < two_days_ago]
-
-    for key in keys_to_remove:
-        if key in notified_coins_60m:
-            del notified_coins_60m[key]
-        if key in notified_coins_1440m:
-            del notified_coins_1440m[key]
 
 
 async def process_coin(coin, price_change_percent, previous_change, highest_percent, lowest_percent, minute_analysis):
@@ -104,7 +83,6 @@ async def process_coin(coin, price_change_percent, previous_change, highest_perc
         if price_change_percent > previous_change and previous_change != 0:
             header_ukr = f"- {coin['symbol']}: {price_change_percent}% РІСТ\n"
             header_en = f"- {coin['symbol']}: {price_change_percent}% GROWTH\n"
-            f"- {coin['symbol']}: {price_change_percent}% (Current rise/fall)\n"
         elif price_change_percent < previous_change and previous_change != 0:
             header_ukr = f"- {coin['symbol']}: {price_change_percent}% ПАДІННЯ\n"
             header_en = f"- {coin['symbol']}: {price_change_percent}% FALL\n"
