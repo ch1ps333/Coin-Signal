@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 from requests import get
 import redis
 
-# Подключение к Redis
 redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
 client = Client()
